@@ -34,7 +34,7 @@ export async function genTaroPage(context:IContext) {
       // } else if(options.tplPath==='index.tsx.ejs'){
       //   options.content =options.content.replace('@connect',`@connect<Partial<T.IProps>>`);
       // }
-      
+
       if(options.tplPath==='index.tsx.ejs' || options.tplPath==='components/sub-components.tsx.ejs'){
         options.content  = options.content
           .replace("import {connect} from 'react-redux'","import { connect } from '@tarojs/redux'")
@@ -42,7 +42,7 @@ export async function genTaroPage(context:IContext) {
           .replace("React.Component","Component")
           .replace(/<div/ig,"<View")
           .replace(/<\/div>/ig,"</View>");
-        options.content = `import { View, Button, Text } from '@tarojs/components';
+        options.content = `import { View, Button, Text, Image } from '@tarojs/components';
             import Taro, { Component, Config } from '@tarojs/taro'
             ${options.content}`
       }
