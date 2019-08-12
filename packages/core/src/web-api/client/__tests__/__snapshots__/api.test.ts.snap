@@ -15,14 +15,6 @@ const controllerName = 'PetStoreController';
 async function createStore(
   saveRequest: ICreateStoreSaveRequestReq,
 ): Promise<unknown> {
-  if (__DEV__) {
-    if (isMock('PetStoreController', 'createStore')) {
-      return Promise.resolve(
-        require('./mock/PetStoreController.json').unknown || {},
-      );
-    }
-  }
-
   let result = await sdk.put<unknown>(
     '/create-store',
 
@@ -41,14 +33,6 @@ async function createStore(
 async function create(
   storeCreateRequest: ICreateStoreCreateRequestReq,
 ): Promise<unknown> {
-  if (__DEV__) {
-    if (isMock('PetStoreController', 'create')) {
-      return Promise.resolve(
-        require('./mock/PetStoreController.json').unknown || {},
-      );
-    }
-  }
-
   let result = await sdk.post<unknown>(
     '/store/create',
 
@@ -67,14 +51,6 @@ async function create(
 async function modifyStoreNum(
   storeNumModifyRequest: IModifyStoreNumStoreNumModifyRequestReq,
 ): Promise<unknown> {
-  if (__DEV__) {
-    if (isMock('PetStoreController', 'modifyStoreNum')) {
-      return Promise.resolve(
-        require('./mock/PetStoreController.json').unknown || {},
-      );
-    }
-  }
-
   let result = await sdk.post<unknown>(
     '/store/num',
 
@@ -91,14 +67,6 @@ async function modifyStoreNum(
  *
  */
 async function getAllStoreTypes(): Promise<unknown> {
-  if (__DEV__) {
-    if (isMock('PetStoreController', 'getAllStoreTypes')) {
-      return Promise.resolve(
-        require('./mock/PetStoreController.json').unknown || {},
-      );
-    }
-  }
-
   let result = await sdk.get<unknown>(
     '/store/storeTypes',
 
@@ -113,14 +81,6 @@ async function getAllStoreTypes(): Promise<unknown> {
  *
  */
 async function listByEmployeeId(): Promise<unknown> {
-  if (__DEV__) {
-    if (isMock('PetStoreController', 'listByEmployeeId')) {
-      return Promise.resolve(
-        require('./mock/PetStoreController.json').unknown || {},
-      );
-    }
-  }
-
   let result = await sdk.get<unknown>(
     '/store/storesByEmployeeId',
 
@@ -137,14 +97,6 @@ async function listByEmployeeId(): Promise<unknown> {
 async function switchStore(
   storeChangeRequest: ISwitchStoreStoreChangeRequestReq,
 ): Promise<unknown> {
-  if (__DEV__) {
-    if (isMock('PetStoreController', 'switchStore')) {
-      return Promise.resolve(
-        require('./mock/PetStoreController.json').unknown || {},
-      );
-    }
-  }
-
   let result = await sdk.post<unknown>(
     '/store/switch',
 
