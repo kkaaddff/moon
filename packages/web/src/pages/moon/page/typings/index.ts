@@ -82,7 +82,9 @@ export interface IMethodDef {
 
 export interface ISubCompDef {
   fileName: string;
-  methods: IMethodDef[]
+  methods: IMethodDef[];
+  imports: string;
+  style: string;
 }
 
 export interface IPageInfo {
@@ -107,7 +109,9 @@ export interface IPageInfo {
   },
 
   mainComp: {
-    methods: IMethodDef[]
+    methods: IMethodDef[];
+    imports: string;
+    style: string;
   }
 }
 

@@ -47,6 +47,7 @@ export interface IPageDefined {
   },
   mainComp: {
     imports:string;
+    style:string;
     methods: IActionItem[];
   }
 
@@ -106,6 +107,7 @@ export interface IActionItem {
 export interface ISubComp {
   fileName: string;
   imports:string;
+  style:string;
   methods: IActionItem[];
 }
 

@@ -24,7 +24,8 @@
     "klaw": "^3.0.0",
     "lodash": "^4.17.11",
     "prettier": "1.16.4",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "ts-morph": "^3.1.0"
   },
   "author": "",
   "license": "ISC",

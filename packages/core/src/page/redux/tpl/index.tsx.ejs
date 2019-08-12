@@ -32,13 +32,15 @@ export default class <%=className%> extends React.Component<Partial<T.IProps>, a
       <% }) %>
     } =  this.props;
 
-<%-(pageInfo.mainComp&&pageInfo.mainComp.methods.filter(item=>item.name =="render")[0]||{}).content%>
-
+    <% if ((pageInfo.mainComp&&pageInfo.mainComp.methods.filter(item=>item.name =="render")[0]||{}).content) { %>
+    <%-(pageInfo.mainComp&&pageInfo.mainComp.methods.filter(item=>item.name =="render")[0]||{}).content %>
+    <% }  else {%>
     return (
-      <div className="<%=instanceName%>">
-        <div/>
-      </div>
+    <div className="<%=instanceName%>">
+      <div/>
+    </div>
     );
+    <% } %>
   }
 }
 

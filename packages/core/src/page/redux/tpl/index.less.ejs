@@ -1,6 +1,8 @@
 @import "~style/theme.less";
-
+<% if (pageInfo.mainComp.style) { %>
+<%-pageInfo.mainComp.style %>
+<% }  else {%>
 .<%=instanceName%> {
-    <%-pageInfo.mainComp.style%>
 }
+<% } %>
 

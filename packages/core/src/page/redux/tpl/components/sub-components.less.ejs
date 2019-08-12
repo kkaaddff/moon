@@ -1,5 +1,7 @@
 @import "~style/theme.less";
-
+<% if (subComp.style) { %>
+<%-subComp.style %>
+<% }  else {%>
 .<%=Util.toLCamelize(subComp.fileName)%> {
-    <%-subComp.style%>
 }
+<% } %>
