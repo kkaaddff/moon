@@ -48,17 +48,14 @@ export async function apply(context: IProps & {data: IData}) {
     pwd: window.moon.context.pwd
   });
 
-  // 填充子组件
-  uiRes.subComps.forEach(uiComp => {
-    const compIndex = pageInfo.subComps.findIndex(comp => comp.fileName === uiComp.componentName);
-    if (compIndex != -1) {
-      action.commonChange(`main.pageInfo.subComps.${compIndex}.imports`, uiComp.imports);
-      action.commonChange(`main.pageInfo.subComps.${compIndex}.style`, uiComp.style);
-      const methodIndex = pageInfo.subComps[compIndex].methods.findIndex(m => m.name === "render");
-      if (methodIndex != -1) {
-        action.commonChange(`main.pageInfo.subComps.${compIndex}.methods.${methodIndex}.content`, uiComp.vdom);
-      }
-    }
+  // 生成子组件
+  uiRes.subComps.forEach(async (uiComp, idx) => {
+    await action.componentAdd();
+    let index = pageInfo.subComps.length + idx;
+    action.commonChange(`main.pageInfo.subComps.${index}.imports`, uiComp.imports);
+    action.commonChange(`main.pageInfo.subComps.${index}.style`, uiComp.style);
+    action.commonChange(`main.pageInfo.subComps.${index}.fileName`, uiComp.componentName);
+    action.commonChange(`main.pageInfo.subComps.${index}.methods.0.content`, uiComp.vdom);
   });
 
   // 填充主组件
