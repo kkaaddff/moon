@@ -1,6 +1,6 @@
 {
   "name": "moon-core",
-  "version": "0.0.7-alpha.42",
+  "version": "0.0.7-alpha.43",
   "description": "",
   "main": "lib/index.js",
   "typings": "declarations/index.d.ts",
