@@ -109,7 +109,7 @@ function isContain(db,controller: string, method: string){
   try {
     oldApiIndex = await fse.readJSONSync(ApiIndexPath);
   } catch (err) {
-    console.warn('读取历史api索引出错: ', err);
+    console.warn('读取 历史api索引出错: ', err);
   }
 
   let apiDir = join(workBase,defaulltMoonConfig.api.dir);

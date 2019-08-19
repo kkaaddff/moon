@@ -1,5 +1,7 @@
 ## 公共词汇
 
+
+
 店铺:shop
 员工:employee
 商品:goods
