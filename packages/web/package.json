@@ -82,7 +82,7 @@
     "sass-loader": "7.1.0",
     "serve": "^11.0.1",
     "style-loader": "0.23.1",
-    "taro-imgcook": "^0.0.0-alpha.3",
+    "taro-imgcook": "^0.0.0-alpha.4",
     "terser-webpack-plugin": "1.2.2",
     "typescript": "^3.5.2",
     "url-loader": "1.1.2",
