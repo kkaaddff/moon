@@ -164,7 +164,7 @@ function getContent(data:IDialogData) {
           param: '',
           content: `
       let {request${key}} = getData().main;
-      request${key}.pageNum=request.pageNum+1;
+      request${key}.pageNum=request${key}.pageNum+1;
       dispatch({ type: Command.modifyRequest${key}, payload: request });
       await this.query${key}();
               `,
@@ -175,10 +175,10 @@ function getContent(data:IDialogData) {
           param: 'isResetPage:boolean=false',
           content: `
             if(isResetPage) {
-              await dispatch({ type: Command.modifyRequest, payload: {pageNum:0} });
+              await dispatch({ type: Command.modifyRequest${key}, payload: {pageNum:0} });
             }
           
-          let {request} =  getData().main;
+          let {request${key}} =  getData().main;
       //TODO 接口缺失 
       // let {} = await api.${apiFile}.${methodName}();
       
