@@ -15,7 +15,6 @@ export default (dispatch: Dispatch) => {
      * 初始化数据
      */
     async init(param: {id: string}) {
-      debugger;
       if (param.id && db[param.id]) {
         dispatch({
           type: Command.init,

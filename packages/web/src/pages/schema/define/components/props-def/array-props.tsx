@@ -69,7 +69,6 @@ export default class ArrayProps extends React.Component<
   }
 
   _onChange = param => {
-    debugger;
     this.setState({childrenInteract: param},this._notify);
   };
 
@@ -85,7 +84,6 @@ export default class ArrayProps extends React.Component<
   };
 
   _notify = () => {
-    debugger;
     this.props.onChange && this.props.onChange({
       interact: 'array',
       childrenInteract: this.state.childrenInteract,
