@@ -12,9 +12,20 @@ import <%=Util.toUCamelize(action.fileName) %> from './<%=action.fileName%>'
  <% pageInfo.actors.forEach(actor=>{ %>
 import <%=Util.toLCamelize(pageInfo.pageKey+"-"+actor.fileName)%> from '../reducers/<%=actor.fileName%>';
  <% }) %>
-export default (dispatch:Dispatch) => {
-  const actions = {
 
+export function loadActions(){
+
+  reduxStore.registerReducer({
+         <% pageInfo.actors.forEach(actor=>{ %>
+          <%=Util.toLCamelize(pageInfo.pageKey+"-"+actor.fileName)%>,
+         <% }) %>
+  });
+  return mapDispatchToProps;
+}
+
+
+export default function mapDispatchToProps(dispatch:Dispatch){
+  const actions = {
     <% pageInfo.actions.forEach(action=>{ %>
         <%=Util.toLCamelize(action.fileName) %> :getActionProxy<typeof <%=Util.toUCamelize(action.fileName) %>>(<%=Util.toUCamelize(action.fileName) %>)(dispatch),
     <% }) %>
@@ -22,7 +33,6 @@ export default (dispatch:Dispatch) => {
      * 初始化数据
      */
     async init(<%- pageInfo.lifeCycles && pageInfo.lifeCycles.param%>) {
-      await actions.loadReducer();
     <% if (pageInfo.lifeCycles && pageInfo.lifeCycles.content) { %>
       <%-pageInfo.lifeCycles.content %>
     <% } %>
@@ -37,36 +47,7 @@ export default (dispatch:Dispatch) => {
      * 重置
      */
     async clean() {
-      await actions.unloadReducer();
       dispatch({type: Command.clean});
-    },
-
-
-
-    /**
-     * 动态添加注入reducer
-     */
-    async loadReducer(){
-    reduxStore.registerReducer({
-         <% pageInfo.actors.forEach(actor=>{ %>
-            <%=Util.toLCamelize(pageInfo.pageKey+"-"+actor.fileName)%>,
-         <% }) %>
-         })
-    },
-
-    /**
-     * 卸载reducer
-     */
-    async unloadReducer(){
-         if(reduxStore.deregister) {
-         reduxStore.deregister([
-                 <% pageInfo.actors.forEach(actor=>{ %>
-                      "<%=Util.toLCamelize(pageInfo.pageKey+"-"+actor.fileName)%>",
-                 <% }) %>
-                 ])
-         } else {
-           console.error('请在redux/store中实现deregister逻辑. ');
-         }
     },
 
   };

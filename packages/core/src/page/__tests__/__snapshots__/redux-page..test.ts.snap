@@ -241,7 +241,16 @@ import cashierMainCart from '../reducers/cart';
 
 import cashierMainContent from '../reducers/content';
 
-export default (dispatch: Dispatch) => {
+export function loadActions() {
+  reduxStore.registerReducer({
+    cashierMainCart,
+
+    cashierMainContent,
+  });
+  return mapDispatchToProps;
+}
+
+export default function mapDispatchToProps(dispatch: Dispatch) {
   const actions = {
     cartAction: getActionProxy<typeof CartAction>(CartAction)(dispatch),
 
@@ -253,8 +262,6 @@ export default (dispatch: Dispatch) => {
      * 初始化数据
      */
     async init() {
-      await actions.loadReducer();
-
       dispatch({
         type: Command.init,
         payload: {
@@ -267,35 +274,12 @@ export default (dispatch: Dispatch) => {
      * 重置
      */
     async clean() {
-      await actions.unloadReducer();
       dispatch({type: Command.clean});
-    },
-
-    /**
-     * 动态添加注入reducer
-     */
-    async loadReducer() {
-      reduxStore.registerReducer({
-        cashierMainCart,
-
-        cashierMainContent,
-      });
-    },
-
-    /**
-     * 卸载reducer
-     */
-    async unloadReducer() {
-      if (reduxStore.deregister) {
-        reduxStore.deregister(['cashierMainCart', 'cashierMainContent']);
-      } else {
-        console.error('请在redux/store中实现deregister逻辑. ');
-      }
     },
   };
 
   return {actions};
-};
+}
 
 //create by moon https://github.com/creasy2010/moon
 ",
@@ -1022,7 +1006,7 @@ export enum Command {
 import {connect} from 'react-redux';
 import './index.less';
 import * as T from './types';
-import actions from './actions';
+import {loadActions} from './actions';
 import {store2Props} from './selectors';
 
 import Cart from './components/cart';
@@ -1051,7 +1035,7 @@ import ContentBottom from './components/content-bottom';
 
 @connect<Partial<T.IProps>, any>(
   store2Props,
-  actions,
+  loadActions(),
 )
 export default class CashierMain extends React.Component<
   Partial<T.IProps>,
@@ -1078,7 +1062,7 @@ export default class CashierMain extends React.Component<
     } = this.props;
 
     return (
-      <div className=\\"cashierMain\\">
+      <div id=\\"cashierMain\\" className=\\"cashierMain\\">
         <div />
       </div>
     );
