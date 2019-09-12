@@ -14,6 +14,7 @@ let allFeaures= getFeatures(getProjectMoonConfig().type,getMoonContext().project
 
 interface IState {
   isShow:boolean;
+  key?:string;
   feature?:{
     FeatureInfo:{
       code:string;
@@ -44,21 +45,21 @@ export default class FeatureCommon extends React.Component<Partial<IPagingFeatur
   componentWillReceiveProps(nextProps:IPagingFeatureProps) {
 
     let {actions: {action}, main} = nextProps;
-    let feature=null,isShow=false;
+    let feature=null,isShow=false, key=this.state.key;
 
     for (let i = 0, iLen = allFeaures.length; i < iLen; i++) {
       let featureItem = allFeaures[i];
       if(featureItem.FeatureInfo.code===main.currentFeature) {
         if(featureItem  && featureItem!= this.state.feature) {
           feature=featureItem;
-
         }
         isShow=true;
+        key=Math.random();
         break;
       }
     }
 
-    this.setState({feature,isShow});
+    this.setState({feature,isShow,key});
   }
 
   elems;
@@ -82,7 +83,7 @@ export default class FeatureCommon extends React.Component<Partial<IPagingFeatur
           action.commonChange( 'main.currentFeature', '');
         }}
       >
-        <div className="featureCommon">
+        <div key={this.state.key} className="featureCommon">
           {this.elems }
         </div>
       </Modal>
@@ -115,6 +116,16 @@ export default class FeatureCommon extends React.Component<Partial<IPagingFeatur
     return elems;
   }
 
+
+  clear=()=>{
+    this.state = {
+      isShow:false,
+      feature:undefined,
+      data:{}
+    };
+    this.elems=undefined;
+  }
+
   /**
    * 提交相关的特性数据;;
    */
@@ -123,11 +134,11 @@ export default class FeatureCommon extends React.Component<Partial<IPagingFeatur
     try{
       await this.state.feature.apply({actions,main,data:this.state.data});
       actions.action.commonChange('main.currentFeature', '');
+
     }catch(err) {
       console.error(err);
-    }finally {
-      this.setState({data:{},feature:undefined});
-      this.elems=undefined;
+    } finally {
+      this.clear();
     }
   };
 }
