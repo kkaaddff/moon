@@ -8,7 +8,13 @@ const Main = () =>
   <Router>
     <Switch>
       <Route path="/" render={() => <MainFrame>
-        <Route path="/" exact={true} component={()=><div>hello welcome to moon</div>} />
+        <Route path="/" exact={true} component={()=><div>
+          hello welcome to moon
+          <br/>
+          issue: https://github.com/creasy2010/moon/issues
+          <br/>
+          fork:  https://github.com/creasy2010/moon
+        </div>} />
         <Route exact={true}  path="/moon/page" component={loadable(() => import('@/pages/moon/page'))} />
         <Route exact={true}  path="/moon/list" component={loadable(() => import('@/pages/moon/list'))} />
         <Route exact={true}  path="/schema/define" component={loadable(() => import('@/pages/schema/define'))} />

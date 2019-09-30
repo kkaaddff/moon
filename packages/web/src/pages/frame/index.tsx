@@ -37,6 +37,10 @@ class Frame extends React.Component<T.IProps, any> {
             <div className="container">
               {this.props.children}
             </div>
+            <div>
+             issue: https://github.com/creasy2010/moon/issues
+             fork:  https://github.com/creasy2010/moon
+            </div>
           </Content>
         </Layout>
       </Layout>
