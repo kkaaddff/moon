@@ -35,7 +35,7 @@ export type InteractConfig =InteractConfigBasic | InteractConfigArray |InteractC
  * @returns {Object}
  */
 export function getInterActData(param:object|Function,option={}):Object{
-  if(typeof( param )=== 'function' ){
+  if(typeof( param )=== 'function' ) {
     return param(option);
   } else {
     return param;
