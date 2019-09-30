@@ -38,7 +38,7 @@ export default class CheckBoxChoose extends React.Component<
 
   componentDidMount() {
     //默认值 传递出去. 职责不应该这样划分的.
-    this.props.onChange(this.state.choosedVaue);
+    this.props.onChange(this.state.choosedValue);
   }
 
   render() {
