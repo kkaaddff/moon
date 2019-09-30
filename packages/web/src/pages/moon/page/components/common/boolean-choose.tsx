@@ -43,7 +43,10 @@ export default class BooleanChoose extends React.Component<
       checked: false,
     };
   }
-
+  componentDidMount(){
+    //默认数据传递出去.  TODO 考虑数据这样传递出去是否合理. 如果通过props 外部值呢
+    this._trigger();
+  }
   render() {
     let {actions: {action}, main} = this.props;
     return (
