@@ -39,6 +39,7 @@ class Frame extends React.Component<T.IProps, any> {
             </div>
             <div>
              issue: https://github.com/creasy2010/moon/issues
+              <br/>
              fork:  https://github.com/creasy2010/moon
             </div>
           </Content>
