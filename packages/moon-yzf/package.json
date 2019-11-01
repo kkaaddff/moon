@@ -1,0 +1,25 @@
+{
+	"name": "moon-yzf",
+	"version": "0.0.7-alpha.45",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"prepublishOnly": "tsc",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"publishConfig": {
+		"registory": "http://registory.npmjs.org"
+	},
+	"dependencies": {
+		"debug": "^4.1.1",
+		"moon-core": "^0.0.7-alpha.45",
+		"ts-morph": "^3.1.0"
+	},
+	"author": "",
+	"license": "ISC",
+	"gitHead": "9c201ea30833f5b90050e5d2eb887ef7a8977109",
+	"devDependencies": {
+		"@types/fs-extra": "^7.0.0",
+		"fs-extra": "^8.1.0"
+	}
+}
