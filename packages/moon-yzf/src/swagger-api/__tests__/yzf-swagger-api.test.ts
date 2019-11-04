@@ -9,7 +9,7 @@
 import {tmpdir} from 'os';
 import {join} from  'path';
 import {readJSON,remove} from  'fs-extra';
-import moonCore from '../../../../core/declarations/index';
+import moonCore from  'moon-core';
 import {resSchemaModify} from "../util";
 import {IWebApiContext, IWebApiDefinded, IWebApiGroup, SchemaProps} from "../../../../core/declarations/typings/api";
 
@@ -20,12 +20,14 @@ describe('云帐房swaggerapi测试', () => {
 
     let targetDir = join(tmpdir(),"moon-temp",Math.random()+"");
 
-    let webapiGroups:IWebApiGroup[] = await readJSON(join(__dirname,"webapi-defs.json"));
+    let webapiGroups:IWebApiGroup[] = await readJSON(join(__dirname,"../data/webapi-defs.json"));
 
 
+    debugger
     for (let i = 0, iLen = 10; i < iLen; i++) {
       let webapiGroup = webapiGroups[i];
 
+      debugger
       await moonCore.WebApiGen.buildWebApi({
         webapiGroup,
         projectPath: targetDir,
@@ -40,7 +42,9 @@ describe('云帐房swaggerapi测试', () => {
       });
     }
 
+    debugger
     let content  =  await moonCore.JestUtil.readDirFiles(targetDir);
+    debugger
     expect(content).toMatchSnapshot("无mock数据");
     await remove(targetDir);
 

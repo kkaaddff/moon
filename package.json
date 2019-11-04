@@ -8,9 +8,7 @@
     "packages/*"
   ],
   "dependencies": {
-    "@types/jest": "^24.0.15",
     "jest": "^24.8.0",
-    "ts-jest": "^24.0.2",
     "lerna": "^3.14.1",
     "typescript": "^3.5.2"
   },
@@ -33,5 +31,9 @@
       "json"
     ]
   },
-  "name": "moon"
+  "name": "moon",
+  "devDependencies": {
+    "@types/jest": "^24.0.21",
+    "ts-jest": "^24.1.0"
+  }
 }
