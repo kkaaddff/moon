@@ -216,6 +216,7 @@ export function transfer(apiDocs: ISwaggerApisDocs): IWebApiGroup[] {
 
     //TODO 会不会有两个及三个方法呢 ? 会 account/invoiceProject/{projectId}
     for (let method in apiItem) {
+      debugger
       let apiDefItem: any = {url, method};
       let methodInfo: IMethodDefinded = apiItem[method];
 
@@ -239,8 +240,11 @@ export function transfer(apiDocs: ISwaggerApisDocs): IWebApiGroup[] {
         .replace(/UsingDELETE.*/gi, '_');
       apiDefItem.comment = methodInfo.summary;
       //in  = body header path
-
-      apiDefItem.requestParam = methodInfo.parameters
+      //
+      // if(!methodInfo.parameters){
+      //   debugger
+      // }
+      apiDefItem.requestParam = (methodInfo.parameters||[])
         .filter(item => item.in != 'header')
         .map(item => {
           if (item.schema) {

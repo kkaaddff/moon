@@ -106,172 +106,172 @@ function isContain(db,controller: string, method: string){
     await fse.writeFileSync(join(workBase, 'webapi-group.json'), JSON.stringify(apiGroups,null,2));
   }
 
-  try {
-    oldApiIndex = await fse.readJSONSync(ApiIndexPath);
-  } catch (err) {
-    console.warn('读取 历史api索引出错: ', err);
-  }
-
-  let apiDir = join(workBase,defaulltMoonConfig.api.dir);
-
-  let inserts: IInsertOption[] = [];
-  let newMethods: { controller: string; method: string }[] = []; //新添加的方法记录
-  let includeApis =defaulltMoonConfig.api.include
-  for (let i = 0, ilen = apiGroups.length; i < ilen; i++) {
-    try {
-      let webapiGroup: IWebApiGroup = apiGroups[i];
-      if (defaulltMoonConfig.api.exclude.includes(webapiGroup.name)) {
-        console.log(
-          `${i}/${ilen}`,
-          'ignore webapiGroup:',
-          webapiGroup.name,
-          'due to MoonConfig.api.exclude'
-        );
-        continue;
-      } else {
-        console.log(`${i}/${ilen}`, 'current webapiGroup:', webapiGroup.name);
-      }
-      let mockData = {};
-
-      if(includeApis && !includeApis.includes(webapiGroup.name)) {
-        console.log(
-          `${i}/${ilen}`,
-          'ignore webapiGroup:',
-          webapiGroup.name,
-          'due to MoonConfig.api.include do not contain it'
-        );
-        continue;
-      }
-
-      function isNeedMock(controller:string,method:string):boolean {
-        return isContain(defaulltMoonConfig.api.mock.mockApi,controller,method);
-      }
-
-      await MoonCore.WebApiGen.buildWebApi({
-        webapiGroup,
-        projectPath: apiDir,
-        isNeedMock,
-        beforeCompile: (apiItem: IWebApiDefinded) => {
-          return apiItem;
-        },
-        resSchemaModify: async (
-          schema: SchemaProps,
-          apiItem: IWebApiDefinded,
-          context: IWebApiContext
-        ): Promise<SchemaProps> => {
-          let _isNewMethod  = isNewMethod(context.webapiGroup.name, apiItem.name);
-          if (_isNewMethod) {
-            newMethods.push({
-              controller: context.webapiGroup.name,
-              method: apiItem.name
-            });
-          }
-          //添加生成mock数据的流程;;
-          let finalSchema = resSchemaModify(schema, apiItem, context);
-          if (finalSchema) {
-            //如果Schema有值,那么生成假数据
-            let json = {};
-            if (!isContain(defaulltMoonConfig.api.mock.ignoreApi,webapiGroup.name,apiItem.name)
-            ) {
-              //查看 是否需要翻译 , 只有当前是mock的, 及新接口才需要mock
-              if(isContain(defaulltMoonConfig.api.mock.mockApi,webapiGroup.name,apiItem.name) || _isNewMethod) {
-                try {
-                  console.log(
-                    `当前Controller:  ${webapiGroup.name}:['${apiItem.name}'],如果过进入infinite loop . 请设置moon.config :api.mock.ignoreApi`
-                  );
-                  json = await MoonCore.fakeGen.genrateFakeData(
-                    finalSchema,
-                    context.webapiGroup.definitions
-                  );
-                } catch (err) {
-                  //TODO 这里把出错的数据记录下来后面分析出错的原因;;
-                  console.error(err, '解析数据出错;;');
-                }
-              }
-            } else {
-              fse.writeFileSync(join(workBase,"mock-err"+webapiGroup.name+".json"), JSON.stringify({...finalSchema,definitions:context.webapiGroup.definitions}, null, 2));
-            }
-            mockData[
-              (finalSchema.title || 'noneName').replace(/(«|»)/gi, '')
-            ] = json;
-          }
-          return finalSchema;
-        },
-        beforeSave: (options: IFileSaveOptions, context: any) => {
-          options.content = options.content
-            .replace(
-              `import sdk from "@api/sdk";`,
-              `import * as sdk from './fetch';`
-            )
-            .replace(
-              `import sdk from '@api/sdk';`,
-              `import * as sdk from './fetch';`
-            )
-            .replace(/result\.data/gi, 'result.context');
-
-          //在这里添加api TODO api中mock相关的操作, 应该在这里添加
-          return Promise.resolve(options);
-        }
-      });
-
-      let controllerName = MoonCore.StringUtil.toLCamelize(webapiGroup.name);
-      let filePath = `./${webapiGroup.name}`;
-
-      inserts.push({
-        mark: "'whatwg-fetch';",
-        isBefore: false,
-        content: `import  ${controllerName} from '${filePath}';`,
-        check: (content: string) => !content.includes(filePath)
-      });
-
-      inserts.push({
-        mark: 'default {',
-        isBefore: false,
-        content: `${controllerName},`,
-        check: (_, raw) => !raw.includes(filePath)
-      });
-
-      //保存mock数据;
-      let mockFilePath = join(
-        apiDir,
-        'mock',
-        webapiGroup.name + '.json'
-      );
-      log('保存mock api定义数据');
-      fse.ensureFileSync(mockFilePath);
-       let oldValue ={};
-      try {
-        log('读取oldvalue, 执行merge操作');
-        oldValue = fse.readJsonSync(mockFilePath);
-      } catch(err){
-
-      } finally {
-        fse.writeFileSync(mockFilePath, JSON.stringify(_.merge(mockData,oldValue), null, 2));
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  await MoonCore.CompileUtil.insertFile(join(apiDir, 'index.ts'), inserts);
-  //还是生成 一个总的 ?
-  //转换
-
-  //生成api索引文件::
-  console.log('开始生成api索引文件,时间稍长,耐心等待');
-  let indexInfo = MoonCore.TsIndex.genApiTsIndex({
-    tsConfig: join(workBase, 'tsconfig.json'),
-    apiDir: apiDir,
-    apiSuffix: 'Controller'
-  });
-  log('保存api索引信息');
-
-  if (newMethods.length > 0) {
-    modifyAndSaveMoonConfig(newMethods);
-  } else {
-  }
-
-  fse.writeFileSync(ApiIndexPath, JSON.stringify(indexInfo, null, 2));
+  // try {
+  //   oldApiIndex = await fse.readJSONSync(ApiIndexPath);
+  // } catch (err) {
+  //   console.warn('读取 历史api索引出错: ', err);
+  // }
+  //
+  // let apiDir = join(workBase,defaulltMoonConfig.api.dir);
+  //
+  // let inserts: IInsertOption[] = [];
+  // let newMethods: { controller: string; method: string }[] = []; //新添加的方法记录
+  // let includeApis =defaulltMoonConfig.api.include
+  // for (let i = 0, ilen = apiGroups.length; i < ilen; i++) {
+  //   try {
+  //     let webapiGroup: IWebApiGroup = apiGroups[i];
+  //     if (defaulltMoonConfig.api.exclude.includes(webapiGroup.name)) {
+  //       console.log(
+  //         `${i}/${ilen}`,
+  //         'ignore webapiGroup:',
+  //         webapiGroup.name,
+  //         'due to MoonConfig.api.exclude'
+  //       );
+  //       continue;
+  //     } else {
+  //       console.log(`${i}/${ilen}`, 'current webapiGroup:', webapiGroup.name);
+  //     }
+  //     let mockData = {};
+  //
+  //     if(includeApis && !includeApis.includes(webapiGroup.name)) {
+  //       console.log(
+  //         `${i}/${ilen}`,
+  //         'ignore webapiGroup:',
+  //         webapiGroup.name,
+  //         'due to MoonConfig.api.include do not contain it'
+  //       );
+  //       continue;
+  //     }
+  //
+  //     function isNeedMock(controller:string,method:string):boolean {
+  //       return isContain(defaulltMoonConfig.api.mock.mockApi,controller,method);
+  //     }
+  //
+  //     await MoonCore.WebApiGen.buildWebApi({
+  //       webapiGroup,
+  //       projectPath: apiDir,
+  //       isNeedMock,
+  //       beforeCompile: (apiItem: IWebApiDefinded) => {
+  //         return apiItem;
+  //       },
+  //       resSchemaModify: async (
+  //         schema: SchemaProps,
+  //         apiItem: IWebApiDefinded,
+  //         context: IWebApiContext
+  //       ): Promise<SchemaProps> => {
+  //         let _isNewMethod  = isNewMethod(context.webapiGroup.name, apiItem.name);
+  //         if (_isNewMethod) {
+  //           newMethods.push({
+  //             controller: context.webapiGroup.name,
+  //             method: apiItem.name
+  //           });
+  //         }
+  //         //添加生成mock数据的流程;;
+  //         let finalSchema = resSchemaModify(schema, apiItem, context);
+  //         if (finalSchema) {
+  //           //如果Schema有值,那么生成假数据
+  //           let json = {};
+  //           if (!isContain(defaulltMoonConfig.api.mock.ignoreApi,webapiGroup.name,apiItem.name)
+  //           ) {
+  //             //查看 是否需要翻译 , 只有当前是mock的, 及新接口才需要mock
+  //             if(isContain(defaulltMoonConfig.api.mock.mockApi,webapiGroup.name,apiItem.name) || _isNewMethod) {
+  //               try {
+  //                 console.log(
+  //                   `当前Controller:  ${webapiGroup.name}:['${apiItem.name}'],如果过进入infinite loop . 请设置moon.config :api.mock.ignoreApi`
+  //                 );
+  //                 json = await MoonCore.fakeGen.genrateFakeData(
+  //                   finalSchema,
+  //                   context.webapiGroup.definitions
+  //                 );
+  //               } catch (err) {
+  //                 //TODO 这里把出错的数据记录下来后面分析出错的原因;;
+  //                 console.error(err, '解析数据出错;;');
+  //               }
+  //             }
+  //           } else {
+  //             fse.writeFileSync(join(workBase,"mock-err"+webapiGroup.name+".json"), JSON.stringify({...finalSchema,definitions:context.webapiGroup.definitions}, null, 2));
+  //           }
+  //           mockData[
+  //             (finalSchema.title || 'noneName').replace(/(«|»)/gi, '')
+  //           ] = json;
+  //         }
+  //         return finalSchema;
+  //       },
+  //       beforeSave: (options: IFileSaveOptions, context: any) => {
+  //         options.content = options.content
+  //           .replace(
+  //             `import sdk from "@api/sdk";`,
+  //             `import * as sdk from './fetch';`
+  //           )
+  //           .replace(
+  //             `import sdk from '@api/sdk';`,
+  //             `import * as sdk from './fetch';`
+  //           )
+  //           .replace(/result\.data/gi, 'result.context');
+  //
+  //         //在这里添加api TODO api中mock相关的操作, 应该在这里添加
+  //         return Promise.resolve(options);
+  //       }
+  //     });
+  //
+  //     let controllerName = MoonCore.StringUtil.toLCamelize(webapiGroup.name);
+  //     let filePath = `./${webapiGroup.name}`;
+  //
+  //     inserts.push({
+  //       mark: "'whatwg-fetch';",
+  //       isBefore: false,
+  //       content: `import  ${controllerName} from '${filePath}';`,
+  //       check: (content: string) => !content.includes(filePath)
+  //     });
+  //
+  //     inserts.push({
+  //       mark: 'default {',
+  //       isBefore: false,
+  //       content: `${controllerName},`,
+  //       check: (_, raw) => !raw.includes(filePath)
+  //     });
+  //
+  //     //保存mock数据;
+  //     let mockFilePath = join(
+  //       apiDir,
+  //       'mock',
+  //       webapiGroup.name + '.json'
+  //     );
+  //     log('保存mock api定义数据');
+  //     fse.ensureFileSync(mockFilePath);
+  //      let oldValue ={};
+  //     try {
+  //       log('读取oldvalue, 执行merge操作');
+  //       oldValue = fse.readJsonSync(mockFilePath);
+  //     } catch(err){
+  //
+  //     } finally {
+  //       fse.writeFileSync(mockFilePath, JSON.stringify(_.merge(mockData,oldValue), null, 2));
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // }
+  //
+  // await MoonCore.CompileUtil.insertFile(join(apiDir, 'index.ts'), inserts);
+  // //还是生成 一个总的 ?
+  // //转换
+  //
+  // //生成api索引文件::
+  // console.log('开始生成api索引文件,时间稍长,耐心等待');
+  // let indexInfo = MoonCore.TsIndex.genApiTsIndex({
+  //   tsConfig: join(workBase, 'tsconfig.json'),
+  //   apiDir: apiDir,
+  //   apiSuffix: 'Controller'
+  // });
+  // log('保存api索引信息');
+  //
+  // if (newMethods.length > 0) {
+  //   modifyAndSaveMoonConfig(newMethods);
+  // } else {
+  // }
+  //
+  // fse.writeFileSync(ApiIndexPath, JSON.stringify(indexInfo, null, 2));
 })();
 
 function modifyAndSaveMoonConfig(
