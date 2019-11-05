@@ -1,40 +1,41 @@
 {
-   "swaggerApi":"http://172.23.188.102:8501/v2/api-docs",
-"api":{
-  "dir":"./api",
- "exclude":[
-     "SmsSupplierController",
-     "CaptchaController",
-     "ResourceServerController",
-     "StoreExpressCompanyController",
-     "CheckAuthController",
-     "PayCallbackController",
-     "CustomerController",
-     "FreightTemplateController",
-     "EmployeeReportController",
-     "ImageServerController",
-     "StoreExpressCompanyController",
-     "MarketingController",
-     "CustomerDetailController",
-     "CustomerDistrReportController",
-     "CustomerDrawCashController",
-     "EmployeeBaseController",
-     "EmployeeController",
-     "InvoiceProjectBaseController",
-     "MarketingController",
-     "PayManageController",
-     "RefundOrderController",
-     "ReturnOrderController",
-     "RoleInfoController",
-     "StoreCateController",
-     "StoreCustomerLevelController",
-     "StoreEvaluateController",
-     "StoreImageCateController",
-     "StoreResourceCateController",
-     "SwitchController",
-     "TradeController",
-     "TradeReportController",
-     "TradeSettingController"
-    ]
+  "api": {
+    "swaggerUrl": "http://172.23.188.102:8501/v2/api-docs",
+    "dir": "./api",
+    "mock": {
+      "ignoreApi": {
+        "UserCustom-Api": [
+          "queryByUserId",
+          "updateUserCustom",
+          "saveUserCustom"
+        ]
+      },
+      "mockApi": {
+        "AppLog-Api": [
+          "saveAppLog",
+          "queryAppLogById",
+          "queryByPage"
+        ],
+        "AppAuthInfo-Api": [
+          "saveAppAuthInfo",
+          "updateAppAuthInfo",
+          "queryAppAuthInfoByMenuId",
+          "queryAppAuthInfoById",
+          "queryAppAuthInfos"
+        ],
+        "Menu-Api": [
+          "saveMenu",
+          "updateMenu",
+          "queryMenuById",
+          "queryMenus"
+        ],
+        "UserCustom-Api": [
+          "saveUserCustom",
+          "updateUserCustom",
+          "queryByUserId"
+        ]
+      }
+    },
+    "exclude": []
   }
 }

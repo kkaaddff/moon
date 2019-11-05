@@ -3,15 +3,14 @@ import {
   IWebApiContext,
   IWebApiDefinded,
   IWebApiGroup,
-  SchemaProps
-} from "moon-core/declarations/typings/api";
-import MoonCore from "moon-core";
-
+  SchemaProps,
+} from 'moon-core/declarations/typings/api';
+import MoonCore from 'moon-core';
 
 export function resSchemaModify(
   schema: SchemaProps,
   apiItem: IWebApiDefinded,
-  context: IWebApiContext
+  context: IWebApiContext,
 ): SchemaProps {
   //api外了一层. 所有内容均把data提取出来即可..
   if (!schema) {
@@ -19,6 +18,11 @@ export function resSchemaModify(
   }
 
   //TODO void怎么表示  ?
+
+  if (!schema['originalRef']) {
+    schema['originalRef'] = schema['$ref'].replace('#/definitions/', '');
+  }
+
   //@ts-ignore;
   if (schema['originalRef'] === 'BaseResponse') {
     return null;
@@ -26,29 +30,32 @@ export function resSchemaModify(
     // console.log('schema[\'$ref\']',schema);
     let subSchema = context.webapiGroup.definitions[
       schema['originalRef']
-      ] as IJSObjectProps;
+    ] as IJSObjectProps;
 
     if (!subSchema) {
       return null;
     }
-    // console.log('hema[\'originalRef\']===\'BaseResponse\'',subSchema);
+
     if (
       subSchema.type === 'object' &&
       subSchema.properties &&
-      subSchema.properties.context
+      subSchema.properties.info
     ) {
-      if (subSchema.properties.context['$ref']) {
+      if (subSchema.properties.info['$ref']) {
         return context.webapiGroup.definitions[
-          subSchema.properties.context['originalRef']
-          ];
-      } else if (subSchema.properties.context['type'] === 'array') {
-        let arrayAschema = subSchema.properties.context;
+          subSchema.properties.info['originalRef'] ||
+            subSchema.properties.info['$ref'].replace('#/definitions/', '')
+        ];
+      } else if (subSchema.properties.info['type'] === 'array') {
+        let arrayAschema = subSchema.properties.info;
         arrayAschema.title =
           //@ts-ignore
-          subSchema.properties.context.items.originalRef + 'Array';
+          (subSchema.properties.info.items.originalRef ||
+            subSchema.properties.info['$ref'].replace('#/definitions/', '')) +
+          'Array';
         return arrayAschema;
       } else {
-        return subSchema.properties.context;
+        return subSchema.properties.info;
       }
     } else {
       return schema;
@@ -62,7 +69,7 @@ export function addDef2List(
   definitions: {
     [defName: string]: SchemaProps;
   },
-  schema: SchemaProps | SchemaProps[]
+  schema: SchemaProps | SchemaProps[],
 ) {
   if (schema instanceof Array) {
     for (let i = 0, iLen = schema.length; i < iLen; i++) {
@@ -84,7 +91,7 @@ export function findAllRefType(
     [defName: string]: SchemaProps;
   },
   obj: any,
-  refs: string[] = []
+  refs: string[] = [],
 ): SchemaProps[] {
   if (!obj) {
     return [];
@@ -117,8 +124,8 @@ export function findAllRefType(
             findAllRefType(
               definitions,
               definitions[refs[j].replace('#/definitions/', '')],
-              refs
-            )
+              refs,
+            ),
           );
         }
       }
@@ -144,7 +151,6 @@ function traverseObj(obj: object, refs: string[] = []) {
   }
   return refs;
 }
-
 
 export interface ITag {
   name: string;
@@ -216,7 +222,6 @@ export function transfer(apiDocs: ISwaggerApisDocs): IWebApiGroup[] {
 
     //TODO 会不会有两个及三个方法呢 ? 会 account/invoiceProject/{projectId}
     for (let method in apiItem) {
-      debugger
       let apiDefItem: any = {url, method};
       let methodInfo: IMethodDefinded = apiItem[method];
 
@@ -227,13 +232,14 @@ export function transfer(apiDocs: ISwaggerApisDocs): IWebApiGroup[] {
         KeyMap[groupKey] = {
           name: groupKey,
           apis: [],
-          definitions: {}
+          definitions: {},
         };
       }
 
       temp[url] = {url, methodName: methodInfo.operationId, group: groupKey};
 
-      apiDefItem.name = MoonCore.StringUtil.toLCamelize(methodInfo.operationId)
+      apiDefItem.name = MoonCore.StringUtil
+        .toLCamelize(methodInfo.operationId)
         .replace(/UsingPOST.*/gi, '')
         .replace(/UsingPUT.*/gi, '')
         .replace(/UsingGET.*/gi, '')
@@ -244,13 +250,13 @@ export function transfer(apiDocs: ISwaggerApisDocs): IWebApiGroup[] {
       // if(!methodInfo.parameters){
       //   debugger
       // }
-      apiDefItem.requestParam = (methodInfo.parameters||[])
+      apiDefItem.requestParam = (methodInfo.parameters || [])
         .filter(item => item.in != 'header')
         .map(item => {
           if (item.schema) {
             addDef2List(
               KeyMap[groupKey].definitions,
-              findAllRefType(apiDocs.definitions, item.schema)
+              findAllRefType(apiDocs.definitions, item.schema),
             );
           }
 
@@ -258,13 +264,13 @@ export function transfer(apiDocs: ISwaggerApisDocs): IWebApiGroup[] {
             name: item.name,
             isInPath: item.in === 'path' ? true : false,
             comment: item.description,
-            jsonSchema: item.schema ? item.schema : item
+            jsonSchema: item.schema ? item.schema : item,
           };
         });
       apiDefItem.responseSchema = methodInfo.responses['200'].schema;
       addDef2List(
         KeyMap[groupKey].definitions,
-        findAllRefType(apiDocs.definitions, apiDefItem.responseSchema)
+        findAllRefType(apiDocs.definitions, apiDefItem.responseSchema),
       );
       KeyMap[groupKey].apis.push(apiDefItem);
     }
