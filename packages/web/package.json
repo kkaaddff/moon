@@ -1,7 +1,7 @@
 {
   "name": "moon-web",
   "private": true,
-  "version": "0.0.7-alpha.45",
+  "version": "0.0.7-alpha.46",
   "publishConfig": {
     "registry": "http://registry.npm.qianmi.com"
   },
